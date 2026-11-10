@@ -5,102 +5,150 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#10131c">
-  <title>MiniCode - Сайт құрастыру</title>
+  <title>MiniCode</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header class="topbar">
-    <div class="logo">Mini<span>Code</span></div>
-    <div class="top-actions">
-      <span id="saveStatus">Сақталды</span>
-      <button id="newProjectBtn" class="primary-btn">
-        + Жаңа жоба
+<header class="topbar">
+  <div class="logo">Mini<span>Code</span></div>
+
+  <div class="top-actions">
+    <span id="saveStatus">Сақталды</span>
+    <button id="newProjectBtn" class="primary-btn">+ Жаңа жоба</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- Жобалар тізімі -->
+  <section id="dashboard">
+    <div class="welcome">
+      <h1>Менің жобаларым</h1>
+      <p>Сайттарыңды жаса, өңде және жарияла.</p>
+    </div>
+
+    <div id="projectList" class="project-list"></div>
+
+    <div id="emptyState" class="empty-state">
+      <h2>Әзірге жобалар жоқ</h2>
+      <p>Алғашқы сайтыңды жасауды баста.</p>
+      <button id="emptyCreateBtn" class="primary-btn">
+        Жаңа сайт жасау
       </button>
     </div>
-  </header>
+  </section>
 
-  <main class="container">
+  <!-- Код редакторы -->
+  <section id="editor" class="hidden">
 
-    <section id="dashboard">
-      <div class="welcome">
-        <h1>Менің жобаларым</h1>
-        <p>Сайттарыңды жаса, өңде және жарияла.</p>
+    <div class="editor-header">
+      <button id="backBtn" class="secondary-btn">← Артқа</button>
+
+      <div class="project-heading">
+        <h2 id="currentProjectName">Жоба</h2>
+        <span id="projectStatus">Өңдеу режимі</span>
       </div>
 
-      <div id="projectList" class="project-list"></div>
+      <button id="saveBtn" class="primary-btn">Сақтау</button>
+    </div>
 
-      <div class="empty-state" id="emptyState">
-        <h2>Әзірге жобалар жоқ</h2>
-        <p>Алғашқы сайтыңды жасауды баста.</p>
-        <button id="emptyCreateBtn" class="primary-btn">
-          Жаңа сайт жасау
-        </button>
-      </div>
-    </section>
+    <!-- Жоба параметрлері -->
+    <details class="settings-panel">
+      <summary>Жоба параметрлері</summary>
 
-    <section id="editor" class="hidden">
+      <label for="siteName">Сайт атауы</label>
+      <input id="siteName" type="text" placeholder="Менің сайтым">
 
-      <div class="editor-header">
-        <button id="backBtn" class="secondary-btn">
-          ← Артқа
-        </button>
+      <label for="siteSlug">Сілтеме атауы</label>
+      <input id="siteSlug" type="text" placeholder="mysite">
 
-        <div class="project-heading">
-          <h2 id="currentProjectName">Жаңа сайт</h2>
-          <span id="projectStatus">Жоба сақталмаған</span>
+      <p id="slugStatus" class="hint"></p>
+      <button id="checkSlugBtn" class="secondary-btn">
+        Сілтемені тексеру
+      </button>
+    </details>
+
+    <!-- Файл менеджері -->
+    <div class="workspace">
+
+      <aside class="file-sidebar">
+
+        <div class="file-sidebar-header">
+          <strong>ФАЙЛДАР</strong>
+
+          <div class="file-actions">
+            <button id="addMenuBtn" title="Жаңа файл немесе бума">+</button>
+            <button id="uploadBtn" title="Файл тасымалдау">↑</button>
+            <button id="collapseFoldersBtn" title="Бумаларды жинау">⌄</button>
+          </div>
         </div>
 
-        <button id="saveBtn" class="primary-btn">
-          Сақтау
-        </button>
-      </div>
-
-      <div class="settings-panel">
-        <h3>Сайт параметрлері</h3>
-
-        <label for="siteName">Сайттың атауы</label>
-        <input id="siteName" type="text"
-          placeholder="Менің сайтым">
-
-        <label for="siteSlug">Сайт сілтемесінің атауы</label>
-        <div class="slug-row">
-          <input id="siteSlug" type="text"
-            placeholder="mysite">
-          <span>.minicode.site</span>
+        <!-- Қосу мәзірі -->
+        <div id="addMenu" class="add-menu hidden">
+          <button id="newFileBtn">📄 Жаңа файл</button>
+          <button id="newFolderBtn">📁 Жаңа бума</button>
+          <button id="menuUploadBtn">↑ Файл тасымалдау</button>
         </div>
 
-        <p id="slugStatus" class="hint">
-          Сілтеме атауын енгіз.
-        </p>
+        <input
+          id="fileInput"
+          type="file"
+          multiple
+          hidden
+        >
 
-        <button id="checkSlugBtn" class="secondary-btn">
-          Сілтемені тексеру
-        </button>
-      </div>
+        <div class="branch-info">
+          <span>●</span> main
+        </div>
 
-      <div class="editor-tabs">
-        <button class="tab active" data-tab="html">HTML</button>
-        <button class="tab" data-tab="css">CSS</button>
-        <button class="tab" data-tab="js">JavaScript</button>
-      </div>
+        <!-- Файлдар осы жерге шығарылады -->
+        <div id="fileTree" class="file-tree"></div>
 
-      <div class="code-area">
-        <textarea id="htmlCode"
-          spellcheck="false"
-          placeholder="HTML кодын жаз..."></textarea>
+      </aside>
 
-        <textarea id="cssCode"
-          class="hidden"
-          spellcheck="false"
-          placeholder="CSS кодын жаз..."></textarea>
+      <!-- Код жазу аймағы -->
+      <section class="code-workspace">
 
-        <textarea id="jsCode"
-          class="hidden"
-          spellcheck="false"
-          placeholder="JavaScript кодын жаз..."></textarea>
-      </div>
+        <div class="file-tabs" id="fileTabs">
+          <span class="no-file">Файл ашылмаған</span>
+        </div>
 
+        <div class="editor-toolbar">
+          <div id="fileBreadcrumb" class="breadcrumb">
+            Жоба
+          </div>
+
+          <div class="editor-toolbar-actions">
+            <button id="renameFileBtn" title="Қайта атау">✎</button>
+            <button id="deleteFileBtn" title="Өшіру">🗑</button>
+          </div>
+        </div>
+
+        <div id="codeEditorContainer" class="code-editor-container">
+          <textarea
+            id="codeEditor"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off"
+            placeholder="Код жазу үшін файлды таңда..."
+            disabled
+          ></textarea>
+
+          <div id="imagePreview" class="image-preview hidden"></div>
+        </div>
+
+        <div class="editor-footer">
+          <span id="fileType">Файл таңдалмаған</span>
+          <span id="fileSaveStatus">Сақталды</span>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Алдын ала көру -->
+    <section class="preview-panel">
       <div class="preview-heading">
         <h3>Сайт көрінісі</h3>
         <button id="previewBtn" class="secondary-btn">
@@ -108,75 +156,84 @@
         </button>
       </div>
 
-      <iframe id="previewFrame"
+      <iframe
+        id="previewFrame"
         title="Сайтты алдын ала көру"
-        sandbox="allow-scripts">
-      </iframe>
-
-      <div class="publish-panel">
-        <h3>Сайтты жариялау</h3>
-        <p>
-          Жоба дайын болғанда оны жеке сілтемемен жариялауға болады.
-        </p>
-
-        <div id="publishedAddress" class="published-address">
-          Әзірге жарияланбаған
-        </div>
-
-        <button id="publishBtn" class="publish-btn">
-          Сайтты жариялау
-        </button>
-
-        <button id="updatePublishBtn" class="secondary-btn hidden">
-          Жарияланған сайтты жаңарту
-        </button>
-
-        <button id="unpublishBtn" class="danger-btn hidden">
-          Жариялауды тоқтату
-        </button>
-
-        <p class="hint">
-          Нақты жариялау сервер қосылғаннан кейін іске қосылады.
-        </p>
-      </div>
-
-      <div class="domain-panel">
-        <h3>Өз доменіңді қосу</h3>
-        <p>
-          Доменді өзің сатып алып, осында байланыстыра аласың.
-        </p>
-
-        <input id="customDomain"
-          type="text"
-          placeholder="мысалы: mysite.kz">
-
-        <button id="connectDomainBtn" class="secondary-btn">
-          Доменді қосу
-        </button>
-
-        <div id="domainStatus" class="hint">
-          Домен әлі қосылмаған.
-        </div>
-      </div>
-
-      <div class="download-panel">
-        <button id="downloadBtn" class="secondary-btn">
-          HTML файлын жүктеу
-        </button>
-      </div>
-
+        sandbox="allow-scripts"
+      ></iframe>
     </section>
 
-  </main>
+    <!-- Жариялау -->
+    <section class="publish-panel">
+      <h3>Сайтты жариялау</h3>
 
+      <label>Қолжетімділік</label>
+      <select id="visibility">
+        <option value="public">Public - Барлығына ашық</option>
+        <option value="private">Private - Жеке</option>
+        <option value="selected">Белгілі адамдарға</option>
+      </select>
+
+      <div id="inviteSection" class="hidden">
+        <label for="inviteEmail">Адамның электрондық поштасы</label>
+        <input id="inviteEmail" type="email" placeholder="name@example.com">
+        <button id="inviteBtn" class="secondary-btn">Шақыру</button>
+      </div>
+
+      <div id="publishedAddress" class="published-address">
+        Әзірге жарияланбаған
+      </div>
+
+      <button id="publishBtn" class="publish-btn">
+        Сайтты жариялау
+      </button>
+
+      <button id="updatePublishBtn" class="secondary-btn hidden">
+        Жарияланған сайтты жаңарту
+      </button>
+
+      <button id="unpublishBtn" class="danger-btn hidden">
+        Жариялауды тоқтату
+      </button>
+    </section>
+
+    <!-- Домен -->
+    <section class="domain-panel">
+      <h3>Өз доменіңді қосу</h3>
+
+      <p>Доменді өзің сатып алып, MiniCode-қа байланыстыра аласың.</p>
+
+      <input
+        id="customDomain"
+        type="text"
+        placeholder="mysite.kz"
+      >
+
+      <button id="connectDomainBtn" class="secondary-btn">
+        Доменді қосу
+      </button>
+
+      <p id="domainStatus" class="hint">
+        Домен әлі қосылмаған.
+      </p>
+    </section>
+
+    <!-- Жүктеу -->
+    <section class="download-panel">
+      <button id="downloadBtn" class="secondary-btn">
+        Жобаны ZIP ретінде жүктеу
+      </button>
+    </section>
+
+  </section>
+
+  <!-- Жаңа жоба терезесі -->
   <div id="createModal" class="modal hidden">
     <div class="modal-content">
       <h2>Жаңа жоба</h2>
 
       <label for="newProjectName">Жоба атауы</label>
-      <input id="newProjectName"
-        type="text"
-        placeholder="Менің сайтым">
+      <input id="newProjectName" type="text" placeholder="Менің сайтым">
 
       <div class="modal-actions">
         <button id="cancelCreateBtn" class="secondary-btn">
@@ -190,6 +247,52 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Файл немесе бума жасау терезесі -->
+  <div id="fileModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="fileModalTitle">Жаңа файл</h2>
+
+      <label for="newFileName">Атауы</label>
+      <input id="newFileName" type="text" placeholder="index.html">
+
+      <p id="fileModalHint" class="hint">
+        Файл атауын және кеңейтімін енгіз.
+      </p>
+
+      <div class="modal-actions">
+        <button id="cancelFileBtn" class="secondary-btn">
+          Бас тарту
+        </button>
+
+        <button id="confirmFileBtn" class="primary-btn">
+          Құру
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Қайта атау терезесі -->
+  <div id="renameModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Атауын өзгерту</h2>
+
+      <label for="renameInput">Жаңа атау</label>
+      <input id="renameInput" type="text">
+
+      <div class="modal-actions">
+        <button id="cancelRenameBtn" class="secondary-btn">
+          Бас тарту
+        </button>
+
+        <button id="confirmRenameBtn" class="primary-btn">
+          Сақтау
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
 </body>
 </html>
