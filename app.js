@@ -1,222 +1,380 @@
-const STORAGE_KEY = "minicode_projects_v1";
-const starterHTML = `<!doctype html>
+
+const $ = (id) => document.getElementById(id);
+
+let projects = JSON.parse(localStorage.getItem("minicode_projects") || "[]");
+let currentProjectId = null;
+let activeTab = "html";
+
+const defaultHTML = `<!DOCTYPE html>
 <html lang="kk">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Менің алғашқы сайтым</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Менің сайтым</title>
 </head>
 <body>
-  <main class="card">
-    <span class="tag">MINICODE</span>
-    <h1>Сәлем, әлем! 👋</h1>
-    <p>Бұл — менің алғашқы веб-сайтым.</p>
-    <button id="helloBtn">Мені бас</button>
-    <p id="message"></p>
-  </main>
-  <script src="script.js"><\/script>
+  <h1>Менің алғашқы сайтым!</h1>
+  <p>Бұл сайт MiniCode арқылы жасалды.</p>
+  <button onclick="hello()">Басу</button>
 </body>
 </html>`;
-const starterCSS = `* { box-sizing: border-box; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
+
+const defaultCSS = `body {
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #dbeafe, #ede9fe);
-  color: #172554;
-}
-.card {
-  width: min(90%, 420px);
-  padding: 36px;
-  border-radius: 22px;
-  background: white;
+  background: #f0f2f5;
   text-align: center;
-  box-shadow: 0 18px 50px #33415522;
+  padding: 40px;
 }
-.tag { color: #6366f1; font-size: 12px; font-weight: bold; letter-spacing: 2px; }
-h1 { font-size: 30px; }
+
+h1 {
+  color: #333;
+}
+
 button {
-  border: 0; border-radius: 10px; padding: 12px 20px;
-  background: #4f46e5; color: white; font-weight: bold;
+  background: #655cff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
 }`;
-const starterJS = `document.getElementById("helloBtn").addEventListener("click", () => {
-  document.getElementById("message").textContent = "Бәрекелді! Сайтың жұмыс істеп тұр.";
-});`;
 
-let projects = loadProjects();
-let currentProjectId = null;
-let activeFile = "html";
-let toastTimer;
+const defaultJS = `function hello() {
+  alert("Сәлем! Бұл MiniCode арқылы жасалған сайт.");
+}`;
 
-const $ = (id) => document.getElementById(id);
-function loadProjects() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
-  catch { return []; }
-}
-function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+function saveProjects() {
+  localStorage.setItem("minicode_projects", JSON.stringify(projects));
   $("saveStatus").textContent = "Сақталды";
-  renderProjects();
 }
-function showToast(message) {
-  const toast = $("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("show"), 2300);
-}
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-function renderProjects() {
-  const grid = $("projectGrid");
-  grid.innerHTML = "";
-  $("projectCount").textContent = projects.length;
-  $("emptyState").style.display = projects.length ? "none" : "block";
-  if (!projects.length) $("lastEdited").textContent = "—";
-  else {
-    const latest = [...projects].sort((a,b) => b.updatedAt-a.updatedAt)[0];
-    $("lastEdited").textContent = new Date(latest.updatedAt).toLocaleDateString("kk-KZ");
+
+function createProject() {
+  const name = $("newProjectName").value.trim();
+
+  if (!name) {
+    alert("Жоба атауын енгіз.");
+    return;
   }
-  projects.slice().sort((a,b) => b.updatedAt-a.updatedAt).forEach(project => {
-    const card = document.createElement("article");
-    card.className = "project-card";
-    card.innerHTML = `<div class="project-icon">&lt;/&gt;</div>
-      <h3>${escapeHTML(project.name)}</h3>
-      <p>${escapeHTML(project.description || "HTML · CSS · JavaScript")}</p>
-      <div class="project-meta"><span>${new Date(project.updatedAt).toLocaleDateString("kk-KZ")}</span>
-      <button class="open-project">Ашу →</button></div>`;
-    card.querySelector("button").addEventListener("click", () => openProject(project.id));
-    grid.appendChild(card);
-  });
-}
-function openModal() {
-  $("newProjectModal").hidden = false;
-  $("projectName").focus();
-}
-function closeModal() { $("newProjectModal").hidden = true; $("newProjectForm").reset(); }
-function createProject(name, description) {
+
   const project = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    name, description,
-    files: { html: starterHTML, css: starterCSS, js: starterJS },
-    updatedAt: Date.now()
+    id: Date.now().toString(),
+    name,
+    slug: makeSlug(name),
+    html: defaultHTML,
+    css: defaultCSS,
+    js: defaultJS,
+    domain: "",
+    published: false
   };
+
   projects.push(project);
-  persist();
-  closeModal();
+  saveProjects();
+
+  $("newProjectName").value = "";
+  $("createModal").classList.add("hidden");
+
   openProject(project.id);
-  showToast("Жоба құрылды және сақталды");
-}
-function currentProject() { return projects.find(p => p.id === currentProjectId); }
-function openProject(id) {
-  currentProjectId = id;
-  activeFile = "html";
-  const project = currentProject();
-  if (!project) return;
-  $("dashboard").classList.remove("active-page");
-  $("editorPage").classList.add("active-page");
-  $("breadcrumb").textContent = "Жобалар / " + project.name;
-  $("editorProjectName").textContent = project.name;
-  document.querySelectorAll(".file-tab").forEach(b => b.classList.toggle("active", b.dataset.file === activeFile));
-  loadActiveFile();
-  renderPreview();
-}
-function loadActiveFile() {
-  const project = currentProject();
-  if (!project) return;
-  const labels = {html:"index.html",css:"style.css",js:"script.js"};
-  $("currentFile").textContent = labels[activeFile];
-  $("codeEditor").value = project.files[activeFile] || "";
-  updateLineCount();
-}
-function updateLineCount() {
-  const count = $("codeEditor").value.split("\n").length;
-  $("lineCount").textContent = count + (count === 1 ? " жол" : " жол");
-}
-function saveCurrentFile(showMessage=false) {
-  const project = currentProject();
-  if (!project) return;
-  project.files[activeFile] = $("codeEditor").value;
-  project.updatedAt = Date.now();
-  persist();
-  if (showMessage) showToast("Өзгерістер сақталды");
-}
-function buildDocument(project) {
-  let htmlDoc = project.files.html || starterHTML;
-  const css = project.files.css || "";
-  const js = project.files.js || "";
-  htmlDoc = htmlDoc.replace(/<link[^>]+href=["']style\.css["'][^>]*>/i, "");
-  htmlDoc = htmlDoc.replace(/<script[^>]+src=["']script\.js["'][^>]*><\/script>/i, "");
-  if (/<\/head>/i.test(htmlDoc)) htmlDoc = htmlDoc.replace(/<\/head>/i, `<style>\n${css}\n</style>\n</head>`);
-  else htmlDoc = `<style>${css}</style>\n` + htmlDoc;
-  if (/<\/body>/i.test(htmlDoc)) htmlDoc = htmlDoc.replace(/<\/body>/i, `<script>\n${js}\n<\/script>\n</body>`);
-  else htmlDoc += `<script>${js}<\/script>`;
-  return htmlDoc;
-}
-function renderPreview() {
-  saveCurrentFile(false);
-  const project = currentProject();
-  if (!project) return;
-  $("previewFrame").srcdoc = buildDocument(project);
-}
-function downloadHTML() {
-  saveCurrentFile(false);
-  const project = currentProject();
-  if (!project) return;
-  const blob = new Blob([buildDocument(project)], {type:"text/html;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = (project.name.trim().replace(/[^\p{L}\p{N}-]+/gu,"-").replace(/^-|-$/g,"") || "my-site") + ".html";
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast("HTML файлы жүктелді");
-}
-function backToDashboard() {
-  saveCurrentFile(false);
-  $("editorPage").classList.remove("active-page");
-  $("dashboard").classList.add("active-page");
-  $("breadcrumb").textContent = "Жобалар";
   renderProjects();
 }
-$("newProjectBtn").addEventListener("click", openModal);
-$("emptyCreateBtn").addEventListener("click", openModal);
-$("closeModal").addEventListener("click", closeModal);
-$("cancelModal").addEventListener("click", closeModal);
-$("newProjectForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const name = $("projectName").value.trim();
-  if (!name) return;
-  createProject(name, $("projectDescription").value.trim());
+
+function makeSlug(value) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function renderProjects() {
+  const list = $("projectList");
+  list.innerHTML = "";
+
+  $("emptyState").classList.toggle("hidden", projects.length > 0);
+
+  projects.forEach(project => {
+    const card = document.createElement("div");
+    card.className = "project-card";
+
+    const title = document.createElement("h3");
+    title.textContent = project.name;
+
+    const address = document.createElement("p");
+    address.textContent = project.slug + ".minicode.site";
+
+    const status = document.createElement("p");
+    status.textContent = project.published
+      ? "Жарияланған"
+      : "Жоба";
+
+    card.append(title, address, status);
+
+    card.addEventListener("click", () => {
+      openProject(project.id);
+    });
+
+    list.appendChild(card);
+  });
+}
+
+function openProject(id) {
+  const project = projects.find(item => item.id === id);
+
+  if (!project) return;
+
+  currentProjectId = id;
+
+  $("dashboard").classList.add("hidden");
+  $("editor").classList.remove("hidden");
+
+  $("currentProjectName").textContent = project.name;
+  $("siteName").value = project.name;
+  $("siteSlug").value = project.slug;
+
+  $("htmlCode").value = project.html;
+  $("cssCode").value = project.css;
+  $("jsCode").value = project.js;
+
+  $("customDomain").value = project.domain || "";
+
+  $("projectStatus").textContent = "Өңдеу режимі";
+
+  updatePublishUI(project);
+  switchTab("html");
+  previewSite();
+}
+
+function getCurrentProject() {
+  return projects.find(item => item.id === currentProjectId);
+}
+
+function updateCurrentProject() {
+  const project = getCurrentProject();
+
+  if (!project) return;
+
+  project.name = $("siteName").value.trim() || "Атаусыз сайт";
+  project.slug = makeSlug($("siteSlug").value);
+  project.html = $("htmlCode").value;
+  project.css = $("cssCode").value;
+  project.js = $("jsCode").value;
+  project.domain = $("customDomain").value.trim();
+
+  $("currentProjectName").textContent = project.name;
+
+  saveProjects();
+  renderProjects();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+
+  $("htmlCode").classList.toggle("hidden", tab !== "html");
+  $("cssCode").classList.toggle("hidden", tab !== "css");
+  $("jsCode").classList.toggle("hidden", tab !== "js");
+
+  document.querySelectorAll(".tab").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.tab === tab
+    );
+  });
+}
+
+function previewSite() {
+  const html = $("htmlCode").value;
+  const css = $("cssCode").value;
+  const js = $("jsCode").value;
+
+  const frame = $("previewFrame");
+
+  const page = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${css}</style>
+    </head>
+    <body>
+      ${html}
+      <script>${js}<\/script>
+    </body>
+    </html>
+  `;
+
+  frame.srcdoc = page;
+}
+
+function downloadHTML() {
+  const html = $("htmlCode").value;
+  const css = $("cssCode").value;
+  const js = $("jsCode").value;
+
+  const finalHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>${css}</style>
+</head>
+<body>
+${html}
+<script>${js}<\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([finalHTML], {
+    type: "text/html;charset=utf-8"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "index.html";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function checkSlug() {
+  const slug = makeSlug($("siteSlug").value);
+  const status = $("slugStatus");
+
+  $("siteSlug").value = slug;
+
+  if (!slug) {
+    status.textContent = "Сілтеме атауын енгіз.";
+    status.style.color = "#ef6262";
+    return;
+  }
+
+  const taken = projects.some(project =>
+    project.slug === slug &&
+    project.id !== currentProjectId
+  );
+
+  if (taken) {
+    status.textContent = "Бұл атау басқа жобаға берілген.";
+    status.style.color = "#ef6262";
+  } else {
+    status.textContent =
+      "Бұл атау осы құрылғыдағы жобаларың арасында бос.";
+    status.style.color = "#35c98b";
+  }
+}
+
+function connectDomain() {
+  const domain = $("customDomain").value.trim();
+  const status = $("domainStatus");
+
+  const validDomain =
+    /^(?=.{1,253}$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(domain);
+
+  if (!validDomain) {
+    status.textContent = "Домен атауы дұрыс емес.";
+    status.style.color = "#ef6262";
+    return;
+  }
+
+  status.textContent =
+    "Домен енгізілді. DNS байланысын тексеру үшін сервер қажет.";
+  status.style.color = "#35c98b";
+
+  updateCurrentProject();
+}
+
+function updatePublishUI(project) {
+  $("publishBtn").classList.toggle("hidden", project.published);
+  $("updatePublishBtn").classList.toggle("hidden", !project.published);
+  $("unpublishBtn").classList.toggle("hidden", !project.published);
+
+  $("publishedAddress").textContent = project.published
+    ? project.slug + ".minicode.site"
+    : "Әзірге жарияланбаған";
+}
+
+function publishSite() {
+  alert(
+    "Жариялау сервері әлі қосылған жоқ. Қазір бұл жоба тек осы браузерде сақталады."
+  );
+}
+
+function updatePublishedSite() {
+  alert(
+    "Сайтты жаңарту үшін алдымен серверлік жариялау жүйесін қосу керек."
+  );
+}
+
+function unpublishSite() {
+  alert(
+    "Жариялауды басқару серверлік жүйе қосылғаннан кейін іске қосылады."
+  );
+}
+
+function goBack() {
+  updateCurrentProject();
+
+  $("editor").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+
+  currentProjectId = null;
+  renderProjects();
+}
+
+$("newProjectBtn").addEventListener("click", () => {
+  $("createModal").classList.remove("hidden");
 });
-$("backBtn").addEventListener("click", backToDashboard);
-$("navProjects").addEventListener("click", backToDashboard);
-$("saveBtn").addEventListener("click", () => saveCurrentFile(true));
-$("previewBtn").addEventListener("click", () => { renderPreview(); showToast("Алдын ала қарау жаңартылды"); });
-$("refreshPreview").addEventListener("click", renderPreview);
+
+$("emptyCreateBtn").addEventListener("click", () => {
+  $("createModal").classList.remove("hidden");
+});
+
+$("cancelCreateBtn").addEventListener("click", () => {
+  $("createModal").classList.add("hidden");
+});
+
+$("createProjectBtn").addEventListener("click", createProject);
+
+$("backBtn").addEventListener("click", goBack);
+
+$("saveBtn").addEventListener("click", () => {
+  updateCurrentProject();
+  $("projectStatus").textContent = "Сақталды";
+});
+
+$("previewBtn").addEventListener("click", previewSite);
+
 $("downloadBtn").addEventListener("click", downloadHTML);
-$("codeEditor").addEventListener("input", () => {
-  updateLineCount();
-  $("saveStatus").textContent = "Сақталмаған өзгеріс";
-  saveCurrentFile(false);
-});
-document.querySelectorAll(".file-tab").forEach(button => {
+
+$("checkSlugBtn").addEventListener("click", checkSlug);
+
+$("connectDomainBtn").addEventListener("click", connectDomain);
+
+$("publishBtn").addEventListener("click", publishSite);
+
+$("updatePublishBtn").addEventListener("click", updatePublishedSite);
+
+$("unpublishBtn").addEventListener("click", unpublishSite);
+
+document.querySelectorAll(".tab").forEach(button => {
   button.addEventListener("click", () => {
-    saveCurrentFile(false);
-    activeFile = button.dataset.file;
-    document.querySelectorAll(".file-tab").forEach(b => b.classList.toggle("active", b === button));
-    loadActiveFile();
+    switchTab(button.dataset.tab);
   });
 });
-$("mobileMenu").addEventListener("click", () => $("sidebar").classList.toggle("open"));
-document.addEventListener("click", e => {
-  if (window.innerWidth <= 800 && !e.target.closest("#sidebar") && !e.target.closest("#mobileMenu")) {
-    $("sidebar").classList.remove("open");
-  }
+
+[
+  "siteName",
+  "siteSlug",
+  "htmlCode",
+  "cssCode",
+  "jsCode",
+  "customDomain"
+].forEach(id => {
+  $(id).addEventListener("input", () => {
+    $("saveStatus").textContent = "Өзгерістер бар";
+  });
 });
-window.addEventListener("beforeunload", () => saveCurrentFile(false));
+
 renderProjects();
