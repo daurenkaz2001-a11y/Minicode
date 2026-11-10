@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101522">
+  <title>MiniCode — жеке сайт студиясы</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark">&lt;/&gt;</span><span>MiniCode</span></div>
+      <button class="nav-item active" id="navProjects">▦ <span>Менің жобаларым</span></button>
+      <div class="sidebar-bottom">
+        <div class="owner-chip"><span class="avatar">D</span><span><b>Жеке кеңістік</b><small>Тек осы құрылғыда</small></span></div>
+        <p class="tiny-note">MiniCode v0.1 · Бастапқы нұсқа</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Мәзір">☰</button>
+        <div class="crumb" id="breadcrumb">Жобалар</div>
+        <div class="top-actions">
+          <span class="local-pill"><i></i> Жергілікті режим</span>
+        </div>
+      </header>
+
+      <section class="dashboard page active-page" id="dashboard">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">ЖЕКЕ САЙТ ЖАСАУ СТУДИЯСЫ</p>
+            <h1>Идеяңды сайтқа айналдыр.</h1>
+            <p class="muted">Код жаз, нәтижесін тексер және жобаларыңды бір жерде басқар.</p>
+          </div>
+          <button class="primary-btn" id="newProjectBtn">＋ Жаңа жоба</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card"><span>Барлық жоба</span><strong id="projectCount">0</strong></div>
+          <div class="stat-card"><span>Соңғы өзгеріс</span><strong id="lastEdited">—</strong></div>
+          <div class="stat-card"><span>Сақтау орны</span><strong>Осы құрылғы</strong></div>
+        </div>
+
+        <div class="section-heading">
+          <div><h2>Менің жобаларым</h2><p class="muted">Жобаны ашып, кодын өңде.</p></div>
+        </div>
+        <div class="project-grid" id="projectGrid"></div>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">⌘</div>
+          <h3>Әзірге жоба жоқ</h3>
+          <p>Алғашқы сайтыңды жасау үшін «Жаңа жоба» батырмасын бас.</p>
+          <button class="secondary-btn" id="emptyCreateBtn">＋ Бірінші жобаны жасау</button>
+        </div>
+      </section>
+
+      <section class="editor-page page" id="editorPage">
+        <div class="editor-toolbar">
+          <div class="project-title-wrap">
+            <button class="back-btn" id="backBtn">←</button>
+            <div><strong id="editorProjectName">Жаңа жоба</strong><small id="saveStatus">Сақталды</small></div>
+          </div>
+          <div class="editor-actions">
+            <button class="secondary-btn compact" id="saveBtn">Сақтау</button>
+            <button class="primary-btn compact" id="previewBtn">▶ Көру</button>
+            <button class="secondary-btn compact" id="downloadBtn">↓ HTML жүктеу</button>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <section class="code-panel">
+            <div class="panel-heading"><span>ФАЙЛДАР</span><span class="file-hint">3 файл</span></div>
+            <div class="file-tabs" role="tablist">
+              <button class="file-tab active" data-file="html">index.html</button>
+              <button class="file-tab" data-file="css">style.css</button>
+              <button class="file-tab" data-file="js">script.js</button>
+            </div>
+            <div class="editor-label"><span id="currentFile">index.html</span><span>Өңдеу аймағы</span></div>
+            <textarea id="codeEditor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Код редакторы"></textarea>
+            <div class="editor-footer"><span>HTML · CSS · JavaScript</span><span id="lineCount">1 жол</span></div>
+          </section>
+
+          <section class="preview-panel">
+            <div class="preview-heading">
+              <div><span class="live-dot"></span><b>Алдын ала қарау</b></div>
+              <button class="icon-btn" id="refreshPreview" title="Жаңарту">↻</button>
+            </div>
+            <div class="preview-address"><span>●</span> Жергілікті алдын ала қарау</div>
+            <iframe id="previewFrame" title="Сайтты алдын ала қарау" sandbox="allow-scripts"></iframe>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="newProjectModal" hidden>
+    <form class="modal" id="newProjectForm">
+      <button type="button" class="modal-close" id="closeModal">×</button>
+      <p class="eyebrow">ЖАҢА ЖОБА</p>
+      <h2>Не жасаймыз?</h2>
+      <label for="projectName">Жоба атауы</label>
+      <input id="projectName" maxlength="40" placeholder="Мысалы: Менің алғашқы сайтым" required>
+      <label for="projectDescription">Қысқаша сипаттама <span>(міндетті емес)</span></label>
+      <input id="projectDescription" maxlength="90" placeholder="Бұл сайт не туралы?">
+      <div class="modal-actions"><button type="button" class="secondary-btn" id="cancelModal">Болдырмау</button><button class="primary-btn" type="submit">Жоба құру</button></div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
