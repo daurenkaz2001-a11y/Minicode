@@ -1,4 +1,3 @@
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -27,7 +26,8 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -40,6 +40,12 @@ button {
 button:active {
   transform: scale(0.97);
 }
+
+.hidden {
+  display: none !important;
+}
+
+/* HEADER */
 
 .topbar {
   width: 100%;
@@ -74,10 +80,48 @@ button:active {
 }
 
 .container {
-  width: 92%;
-  max-width: 1100px;
-  margin: 30px auto;
+  width: 94%;
+  max-width: 1250px;
+  margin: 28px auto;
 }
+
+/* BUTTONS */
+
+.primary-btn,
+.publish-btn {
+  background: var(--accent);
+  color: white;
+  padding: 11px 17px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.primary-btn:hover,
+.publish-btn:hover {
+  background: var(--accent2);
+}
+
+.secondary-btn {
+  background: var(--panel2);
+  color: var(--text);
+  padding: 10px 15px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.secondary-btn:hover {
+  border-color: var(--accent);
+}
+
+.danger-btn {
+  background: #47252d;
+  color: #ffaaaa;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+/* DASHBOARD */
 
 .welcome {
   margin-bottom: 25px;
@@ -120,6 +164,7 @@ button:active {
 .project-card p {
   color: var(--muted);
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .empty-state {
@@ -138,49 +183,13 @@ button:active {
   margin-bottom: 20px;
 }
 
-.primary-btn,
-.publish-btn {
-  background: var(--accent);
-  color: white;
-  padding: 11px 17px;
-  border-radius: 8px;
-  font-weight: bold;
-}
-
-.primary-btn:hover,
-.publish-btn:hover {
-  background: var(--accent2);
-}
-
-.secondary-btn {
-  background: var(--panel2);
-  color: var(--text);
-  padding: 10px 15px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.secondary-btn:hover {
-  border-color: var(--accent);
-}
-
-.danger-btn {
-  background: #47252d;
-  color: #ffaaaa;
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.hidden {
-  display: none !important;
-}
+/* EDITOR HEADER */
 
 .editor-header {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
@@ -198,21 +207,7 @@ button:active {
   font-size: 12px;
 }
 
-.settings-panel,
-.publish-panel,
-.domain-panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.settings-panel h3,
-.publish-panel h3,
-.domain-panel h3 {
-  margin-bottom: 17px;
-}
+/* INPUTS */
 
 label {
   display: block;
@@ -221,7 +216,8 @@ label {
   margin: 14px 0 7px;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 12px;
   background: var(--bg);
@@ -232,25 +228,9 @@ input {
 }
 
 input:focus,
+select:focus,
 textarea:focus {
   border-color: var(--accent);
-}
-
-.slug-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.slug-row input {
-  flex: 1;
-  min-width: 0;
-}
-
-.slug-row span {
-  color: var(--muted);
-  font-size: 12px;
-  white-space: nowrap;
 }
 
 .hint {
@@ -260,44 +240,267 @@ textarea:focus {
   line-height: 1.5;
 }
 
-.editor-tabs {
-  display: flex;
-  gap: 7px;
-  margin-bottom: 10px;
-}
-
-.tab {
+.settings-panel,
+.publish-panel,
+.domain-panel {
   background: var(--panel);
-  color: var(--muted);
-  padding: 11px 20px;
-  border-radius: 8px 8px 0 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
 }
 
-.tab.active {
-  background: var(--accent);
+.settings-panel summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* WORKSPACE */
+
+.workspace {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  min-height: 480px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+/* FILE SIDEBAR */
+
+.file-sidebar {
+  background: #151a25;
+  border-right: 1px solid var(--border);
+  position: relative;
+  min-width: 0;
+}
+
+.file-sidebar-header {
+  min-height: 48px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.file-sidebar-header strong {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.file-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.file-actions button,
+.editor-toolbar-actions button {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  color: var(--text);
+  background: transparent;
+  font-size: 19px;
+}
+
+.file-actions button:hover,
+.editor-toolbar-actions button:hover {
+  background: var(--panel2);
+}
+
+.branch-info {
+  padding: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.branch-info span {
+  color: var(--green);
+  margin-right: 6px;
+}
+
+.file-tree {
+  padding: 10px 7px;
+  overflow: auto;
+  max-height: 500px;
+}
+
+.file-tree button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  color: var(--text);
+  background: transparent;
+  border-radius: 5px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.file-tree button:hover {
+  background: var(--panel2);
+}
+
+.file-tree button.active {
+  background: #30365a;
   color: white;
 }
 
-.code-area textarea {
-  width: 100%;
-  height: 300px;
-  resize: vertical;
-  background: #0b0e15;
-  color: #d5e3ff;
+.file-tree .folder-row {
+  color: #e5b34b;
+}
+
+.add-menu {
+  position: absolute;
+  z-index: 5;
+  top: 43px;
+  right: 8px;
+  width: 190px;
+  padding: 6px;
+  background: var(--panel2);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 16px;
+  box-shadow: 0 8px 25px #0008;
+}
+
+.add-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 11px;
+  color: var(--text);
+  background: transparent;
+  border-radius: 5px;
+}
+
+.add-menu button:hover {
+  background: var(--border);
+}
+
+/* CODE EDITOR */
+
+.code-workspace {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0d1119;
+}
+
+.file-tabs {
+  display: flex;
+  min-height: 43px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.file-tabs button {
+  flex-shrink: 0;
+  padding: 12px 15px;
+  background: transparent;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.file-tabs button.active {
+  color: white;
+  background: #0d1119;
+  border-top: 2px solid var(--accent);
+}
+
+.no-file {
+  padding: 13px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.editor-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.breadcrumb {
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.editor-toolbar-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.code-editor-container {
+  flex: 1;
+  min-height: 350px;
+}
+
+#codeEditor {
+  width: 100%;
+  height: 100%;
+  min-height: 350px;
+  resize: vertical;
+  padding: 17px;
+  background: #0d1119;
+  color: #d5e3ff;
+  border: none;
+  outline: none;
   font-family: monospace;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
+  tab-size: 2;
+}
+
+#codeEditor:focus {
+  border: none;
+}
+
+#codeEditor:disabled {
+  cursor: default;
+}
+
+.image-preview {
+  padding: 20px;
+  text-align: center;
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 350px;
+  object-fit: contain;
+}
+
+.editor-footer {
+  padding: 9px 12px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 11px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
+
+/* PREVIEW */
+
+.preview-panel {
+  margin-top: 22px;
 }
 
 .preview-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
   gap: 10px;
-  margin: 25px 0 12px;
 }
 
 #previewFrame {
@@ -308,15 +511,16 @@ textarea:focus {
   border-radius: 8px;
 }
 
+/* PUBLISH */
+
 .publish-panel,
 .domain-panel {
   margin-top: 22px;
 }
 
-.publish-btn {
-  display: block;
-  width: 100%;
-  margin-top: 15px;
+.publish-panel h3,
+.domain-panel h3 {
+  margin-bottom: 12px;
 }
 
 .published-address {
@@ -325,7 +529,13 @@ textarea:focus {
   border-radius: 8px;
   color: var(--green);
   overflow-wrap: anywhere;
-  margin-top: 12px;
+  margin: 12px 0;
+}
+
+.publish-btn {
+  display: block;
+  width: 100%;
+  margin-top: 15px;
 }
 
 .domain-panel input {
@@ -336,6 +546,8 @@ textarea:focus {
   margin: 20px 0 40px;
 }
 
+/* MODALS */
+
 .modal {
   position: fixed;
   inset: 0;
@@ -344,7 +556,7 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  z-index: 10;
+  z-index: 20;
 }
 
 .modal-content {
@@ -367,7 +579,9 @@ textarea:focus {
   margin-top: 22px;
 }
 
-@media (max-width: 600px) {
+/* MOBILE */
+
+@media (max-width: 700px) {
   .topbar {
     padding: 12px 4%;
   }
@@ -377,12 +591,8 @@ textarea:focus {
   }
 
   .container {
-    width: 94%;
-    margin-top: 22px;
-  }
-
-  .welcome h1 {
-    font-size: 23px;
+    width: 95%;
+    margin-top: 20px;
   }
 
   .top-actions {
@@ -393,20 +603,62 @@ textarea:focus {
     display: none;
   }
 
-  .editor-header {
-    gap: 9px;
+  .welcome h1 {
+    font-size: 23px;
   }
 
-  .slug-row {
+  .workspace {
+    grid-template-columns: 115px minmax(0, 1fr);
+    min-height: 420px;
+  }
+
+  .file-sidebar-header {
+    padding: 8px 5px;
     flex-wrap: wrap;
   }
 
-  .slug-row span {
-    padding: 5px 0;
+  .file-sidebar-header strong {
+    font-size: 9px;
   }
 
-  .code-area textarea {
-    height: 260px;
+  .file-actions {
+    gap: 0;
+  }
+
+  .file-actions button {
+    width: 26px;
+    height: 28px;
+  }
+
+  .file-tree {
+    padding: 7px 3px;
+  }
+
+  .file-tree button {
+    font-size: 11px;
+    padding: 8px 4px;
+  }
+
+  .file-tabs button {
+    padding: 12px 8px;
+    font-size: 11px;
+  }
+
+  #codeEditor {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .editor-toolbar {
+    padding: 7px 5px;
+  }
+
+  .breadcrumb {
+    font-size: 10px;
+  }
+
+  .editor-toolbar-actions button {
+    width: 25px;
   }
 
   #previewFrame {
@@ -416,6 +668,17 @@ textarea:focus {
   .settings-panel,
   .publish-panel,
   .domain-panel {
-    padding: 15px;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  .workspace {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+
+  .primary-btn {
+    padding: 9px 11px;
+    font-size: 12px;
   }
 }
